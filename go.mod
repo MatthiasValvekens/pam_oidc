@@ -10,10 +10,8 @@ require (
 )
 
 require (
-	github.com/golang/protobuf v1.5.4 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
-	golang.org/x/oauth2 v0.18.0 // indirect
+	golang.org/x/oauth2 v0.29.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 )
