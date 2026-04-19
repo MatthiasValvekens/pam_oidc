@@ -3,3 +3,4 @@ pam_oidc.h
 pam_oidc-*.rpm
 nfpm.yaml
 .vagrant/
+.idea/

@@ -116,3 +116,13 @@ To debug failures, check the auth logs:
 ```
 sudo tail -f /var/log/auth.log
 ```
+
+## Development
+
+From the repository root (workspace), run module targets via `pam_oidc/`:
+
+```bash
+make -C pam_oidc test
+make -C pam_oidc rpm
+```
+

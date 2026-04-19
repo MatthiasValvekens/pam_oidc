@@ -11,7 +11,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.24
+          go-version: 1.26
 
       - name: Install libraries
         run: sudo apt-get update && sudo apt-get install -y libpam0g-dev
@@ -20,20 +20,20 @@ jobs:
         run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.6.0
 
       - name: Build RPM
-        run: make rpm
+        run: make -C pam_oidc rpm
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
           name: rpm
-          path: "pam_oidc-*.rpm"
+          path: "pam_oidc/pam_oidc-*.rpm"
       - name: Upload shared object file
         uses: actions/upload-artifact@v4
         with:
           name: lib
-          path: pam_oidc.so
+          path: pam_oidc/pam_oidc.so
       - name: Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
           files: |
-            pam_oidc-*.rpm
+            pam_oidc/pam_oidc-*.rpm
