@@ -13,7 +13,7 @@ import (
 func TestCryptoSigner(t *testing.T) {
 	ctx := context.Background()
 
-	key, err := rsa.GenerateKey(rand.Reader, 512)
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 func mustInitSigner() *signer.StaticSigner {
-	key, err := rsa.GenerateKey(rand.Reader, 512)
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		panic(err)
 	}

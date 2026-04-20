@@ -318,7 +318,7 @@ func (s *stubSMGR) expireAccessTokens(_ context.Context) error {
 }
 
 var testSigner = func() *signer.StaticSigner {
-	key := mustGenRSAKey(512)
+	key := mustGenRSAKey(2048)
 
 	signingKey := jose.SigningKey{Algorithm: jose.RS256, Key: &jose.JSONWebKey{
 		Key:   key,

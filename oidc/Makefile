@@ -10,6 +10,9 @@ build:
 test:
 	go test -v ./...
 
+lint:
+	golangci-lint run
+
 proto: proto/core/v1/storage.pb.go
 
 proto/core/v1/storage.pb.go: proto/core/v1/storage.proto

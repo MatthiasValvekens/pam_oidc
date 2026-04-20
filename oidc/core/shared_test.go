@@ -95,7 +95,7 @@ func (s *stubSMGR) DeleteSession(ctx context.Context, sessionID string) error {
 }
 
 var testSigner = func() Signer {
-	key := mustGenRSAKey(512)
+	key := mustGenRSAKey(2048)
 
 	signingKey := jose.SigningKey{Algorithm: jose.RS256, Key: &jose.JSONWebKey{
 		Key:   key,

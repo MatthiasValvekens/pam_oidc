@@ -18,14 +18,18 @@ jobs:
 
     - name: Get dependencies
       run: go mod download
+      working-directory: oidc
 
     - name: Build
       run: make build
+      working-directory: oidc
 
     - name: Test
       run: make test
+      working-directory: oidc
 
     - name: Lint
       uses: golangci/golangci-lint-action@v7
       with:
         version: v2.1.2
+        working-directory: oidc

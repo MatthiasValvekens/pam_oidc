@@ -83,7 +83,7 @@ func newMockOIDCServer() *mockOIDCServer {
 	s.mux = mux
 
 	// Very short key. Used only for testing so generation time is quick.
-	s.key = mustGenRSAKey(512)
+	s.key = mustGenRSAKey(2048)
 
 	return s
 }
