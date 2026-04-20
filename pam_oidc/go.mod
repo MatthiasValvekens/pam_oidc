@@ -5,7 +5,6 @@ go 1.26
 require (
 	github.com/go-jose/go-jose/v3 v3.0.5
 	github.com/google/go-cmp v0.7.0
-	github.com/pardot/oidc v1.0.1
 	golang.org/x/net v0.53.0
 )
 

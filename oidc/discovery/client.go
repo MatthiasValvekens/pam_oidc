@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"sync"
 
@@ -11,6 +12,7 @@ import (
 )
 
 const oidcwk = "/.well-known/openid-configuration"
+const decodeErrorBodyMaxChars = 1024
 
 // keep us looking like a keysource, for consistency
 var _ KeySource = (*Client)(nil)
@@ -82,13 +84,31 @@ func (c *Client) PublicKeys(ctx context.Context) (*jose.JSONWebKeySet, error) {
 	}
 
 	ks := &jose.JSONWebKeySet{}
-	err = json.NewDecoder(res.Body).Decode(ks)
+	body, readErr := io.ReadAll(res.Body)
 	_ = res.Body.Close()
+	if readErr != nil {
+		return nil, fmt.Errorf("failed reading JWKS response body: %v", readErr)
+	}
+
+	err = json.Unmarshal(body, ks)
 	if err != nil {
-		return nil, fmt.Errorf("failed decoding JWKS response: %v", err)
+		return nil, fmt.Errorf("failed decoding JWKS response: %v (body: %q)", err, truncateForLog(string(body), decodeErrorBodyMaxChars))
 	}
 
 	return ks, nil
+}
+
+func truncateForLog(s string, maxChars int) string {
+	if maxChars <= 0 {
+		return ""
+	}
+
+	runes := []rune(s)
+	if len(runes) <= maxChars {
+		return s
+	}
+
+	return string(runes[:maxChars]) + "...(truncated)"
 }
 
 // GetKey will return the key for the given kid. If the key has already
