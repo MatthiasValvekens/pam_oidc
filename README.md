@@ -123,6 +123,6 @@ From the repository root (workspace), run module targets via `pam_oidc/`:
 
 ```bash
 make -C pam_oidc test
-make -C pam_oidc rpm
+make -C pam_oidc deb
 ```
 

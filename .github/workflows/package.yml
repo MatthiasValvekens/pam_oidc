@@ -17,15 +17,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libpam0g-dev
 
       - name: Install nfpm
-        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.6.0
+        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.46.3
 
-      - name: Build RPM
-        run: make -C pam_oidc rpm
+      - name: Build DEB
+        run: make -C pam_oidc deb
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rpm
-          path: "pam_oidc/pam_oidc-*.rpm"
+          name: deb
+          path: "pam_oidc/pam_oidc_*.deb"
       - name: Upload shared object file
         uses: actions/upload-artifact@v4
         with:
@@ -36,4 +36,4 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           files: |
-            pam_oidc/pam_oidc-*.rpm
+            pam_oidc/pam_oidc_*.deb

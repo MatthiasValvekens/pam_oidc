@@ -1,6 +1,6 @@
 pam_oidc.so
 pam_oidc.h
-pam_oidc-*.rpm
+pam_oidc_*.deb
 nfpm.yaml
 .vagrant/
 .idea/
