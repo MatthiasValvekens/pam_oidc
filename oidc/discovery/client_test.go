@@ -38,4 +38,3 @@ func TestPublicKeysDecodeErrorIncludesTruncatedBody(t *testing.T) {
 		t.Fatalf("wanted truncation marker in error, got: %q", errMsg)
 	}
 }
-

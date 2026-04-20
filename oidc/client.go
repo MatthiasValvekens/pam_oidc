@@ -312,33 +312,6 @@ func (c *Client) Userinfo(ctx context.Context, token *Token) (*Userinfo, error) 
 	}, nil
 }
 
-type wrapTokenSource struct {
-	ts oauth2.TokenSource
-	c  *Client
-}
-
-func (c *Client) TokenSource(ctx context.Context, t *Token) TokenSource {
-	o2tok := &oauth2.Token{
-		AccessToken:  t.AccessToken,
-		RefreshToken: t.RefreshToken,
-		Expiry:       t.Expiry,
-	}
-
-	return &wrapTokenSource{
-		ts: c.o2cfg.TokenSource(ctx, o2tok),
-		c:  c,
-	}
-}
-
-func (w *wrapTokenSource) Token(ctx context.Context) (*Token, error) {
-	o2tok, err := w.ts.Token()
-	if err != nil {
-		return nil, fmt.Errorf("getting oauth2 token: %v", err)
-	}
-
-	return w.c.oauth2Token(ctx, o2tok)
-}
-
 type captureTS struct {
 	ts     oauth2.TokenSource
 	notify func(t *oauth2.Token)
