@@ -7,12 +7,14 @@ import (
 	"io"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/go-jose/go-jose/v3"
 )
 
 const oidcwk = "/.well-known/openid-configuration"
 const decodeErrorBodyMaxChars = 1024
+const defaultMetadataCacheTTL = 12 * time.Hour
 
 // keep us looking like a keysource, for consistency
 var _ KeySource = (*Client)(nil)
@@ -25,6 +27,9 @@ type Client struct {
 	md *ProviderMetadata
 
 	hc *http.Client
+
+	metadataCacheDir string
+	metadataCacheTTL time.Duration
 
 	jwks   *jose.JSONWebKeySet
 	jwksMu sync.Mutex
@@ -41,6 +46,19 @@ func WithHTTPClient(hc *http.Client) func(c *Client) {
 	}
 }
 
+// WithMetadataCache enables filesystem caching for provider metadata
+// (/.well-known/openid-configuration).
+func WithMetadataCache(cacheDir string, ttl time.Duration) func(c *Client) {
+	if ttl <= 0 {
+		ttl = defaultMetadataCacheTTL
+	}
+
+	return func(c *Client) {
+		c.metadataCacheDir = cacheDir
+		c.metadataCacheTTL = ttl
+	}
+}
+
 // NewClient will initialize a Client, performing the initial discovery.
 func NewClient(ctx context.Context, issuer string, opts ...ClientOpt) (*Client, error) {
 	c := &Client{
@@ -52,14 +70,27 @@ func NewClient(ctx context.Context, issuer string, opts ...ClientOpt) (*Client, 
 		o(c)
 	}
 
+	if c.metadataCacheDir != "" {
+		if md, err := readProviderMetadataFile(metadataCachePath(c.metadataCacheDir, issuer), c.metadataCacheTTL); err == nil {
+			c.md = md
+			return c, nil
+		}
+	}
+
 	mdr, err := c.hc.Get(issuer + oidcwk)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching %s: %v", issuer+oidcwk, err)
 	}
-	err = json.NewDecoder(mdr.Body).Decode(c.md)
+	md := &ProviderMetadata{}
+	err = json.NewDecoder(mdr.Body).Decode(md)
 	_ = mdr.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("error decoding provider metadata response: %v", err)
+	}
+
+	c.md = md
+	if c.metadataCacheDir != "" {
+		_ = writeProviderMetadataFile(metadataCachePath(c.metadataCacheDir, issuer), md)
 	}
 
 	return c, nil

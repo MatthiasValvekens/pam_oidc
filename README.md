@@ -74,6 +74,24 @@ Default: (no value)
 
 If specified, an HTTP proxy used to connect to the issuer to discover OpenID Connect parameters.
 
+#### cache\_dir
+
+Default: (no value)
+
+If specified, enables filesystem caching in this directory for:
+
+- provider discovery metadata (`/.well-known/openid-configuration`)
+- signing keys (JWKs), cached by `kid`
+
+The directory must be writable by the PAM process.
+
+#### cache\_ttl
+
+Default: `12h`
+
+If specified, controls how long entries in `cache_dir` are considered valid.
+Must be a positive Go duration string such as `30m`, `12h`, or `24h`.
+
 ## Local Testing
 
 A Vagrant VM is available for local testing:

@@ -8,6 +8,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 type config struct {
@@ -30,10 +31,18 @@ type config struct {
 	RequireACRs []string
 	// HTTPProxy is the HTTP proxy server used to connect to HTTP services.
 	HTTPProxy string
+	// CacheDir is an optional directory where retrieved JWKs are cached on disk
+	// by their `kid`.  When empty, no filesystem caching is performed.
+	CacheDir string
+	// CacheTTL is the time-to-live for cached keys. Defaults to 12 hours.
+	// Only used if CacheDir is set.
+	CacheTTL time.Duration
 }
 
 func configFromArgs(args []string) (*config, error) {
-	c := &config{}
+	c := &config{
+		CacheTTL: 12 * time.Hour, // default TTL
+	}
 
 	for _, arg := range args {
 		parts := strings.SplitN(arg, "=", 2)
@@ -58,6 +67,17 @@ func configFromArgs(args []string) (*config, error) {
 			c.RequireACRs = strings.Split(parts[1], ",")
 		case "http_proxy":
 			c.HTTPProxy = parts[1]
+		case "cache_dir":
+			c.CacheDir = parts[1]
+		case "cache_ttl":
+			ttl, err := time.ParseDuration(parts[1])
+			if err != nil {
+				return nil, fmt.Errorf("invalid cache_ttl: %v", err)
+			}
+			if ttl <= 0 {
+				return nil, fmt.Errorf("invalid cache_ttl: must be > 0")
+			}
+			c.CacheTTL = ttl
 		default:
 			return nil, fmt.Errorf("unknown option: %v", parts[0])
 		}

@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/pardot/oidc"
 	"github.com/pardot/oidc/discovery"
@@ -50,7 +51,7 @@ type authenticator struct {
 	aud      string
 }
 
-func discoverAuthenticator(ctx context.Context, issuer string, aud string, httpProxy string) (*authenticator, error) {
+func discoverAuthenticator(ctx context.Context, issuer string, aud string, httpProxy string, cacheDir string, cacheTTL time.Duration) (*authenticator, error) {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	if httpProxy != "" {
 		// Use no_proxy from environment, if present, but override proxy URL
@@ -64,14 +65,24 @@ func discoverAuthenticator(ctx context.Context, issuer string, aud string, httpP
 		}
 	}
 
-	client, err := discovery.NewClient(ctx, issuer, discovery.WithHTTPClient(&http.Client{
-		Transport: transport,
-	}))
+	clientOpts := []discovery.ClientOpt{
+		discovery.WithHTTPClient(&http.Client{Transport: transport}),
+	}
+	if cacheDir != "" {
+		clientOpts = append(clientOpts, discovery.WithMetadataCache(cacheDir, cacheTTL))
+	}
+
+	client, err := discovery.NewClient(ctx, issuer, clientOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("discovering verifier: %v", err)
 	}
 
-	verifier := oidc.NewVerifier(issuer, client)
+	var ks oidc.KeySource = client
+	if cacheDir != "" {
+		ks = newCachedKeySource(client, cacheDir, cacheTTL)
+	}
+
+	verifier := oidc.NewVerifier(issuer, ks)
 	return &authenticator{
 		verifier: verifier,
 		aud:      aud,
