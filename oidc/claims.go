@@ -112,9 +112,7 @@ func (c Claims) String() string {
 func (c Claims) MarshalJSON() ([]byte, error) {
 	// avoid recursing on this method
 	type ids Claims
-	id := ids(c)
-
-	sj, err := json.Marshal(&id)
+	sj, err := json.Marshal(new(ids(c)))
 	if err != nil {
 		return nil, err
 	}

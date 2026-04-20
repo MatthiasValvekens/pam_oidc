@@ -33,8 +33,7 @@ func (h *HTTPError) Unwrap() error {
 // * a HttpError if a general HTTP error response was returned
 // * A generic error for all other errors
 func parseExchangeError(err error) error {
-	var rerr *xoauth2.RetrieveError
-	if errors.As(err, &rerr) {
+	if rerr, ok := errors.AsType[*xoauth2.RetrieveError](err); ok {
 		// set this up as the default case if we can't handle the error more intelligently
 		herr := HTTPError{
 			Response: rerr.Response,
