@@ -4,3 +4,6 @@ pam_oidc-*.rpm
 nfpm.yaml
 .vagrant/
 .idea/
+.gobincache
+/bin/golangci-lint*
+.idea
